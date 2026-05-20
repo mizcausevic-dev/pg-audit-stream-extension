@@ -41,6 +41,9 @@ def _install_extension(conn: psycopg.Connection) -> None:
         cur.execute("CREATE SCHEMA audit_stream;")
         cur.execute("SET search_path TO audit_stream, public;")
         cur.execute(body)
+        # Reset search_path so test tables (CREATE TABLE foo) land in `public`,
+        # not in `audit_stream`. Otherwise watch('foo') => public.foo misses.
+        cur.execute("RESET search_path;")
 
 
 @pytest.fixture
