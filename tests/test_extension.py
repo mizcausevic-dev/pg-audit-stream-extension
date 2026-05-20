@@ -11,30 +11,25 @@ Exercises:
 from __future__ import annotations
 
 import json
-import select
-import time
 from typing import Any
 
 import psycopg
 import pytest
 
 
-def _drain_notifies(conn: psycopg.Connection, timeout: float = 2.0) -> list[dict[str, Any]]:
-    """Block up to `timeout` seconds collecting NOTIFY payloads on this connection."""
-    end = time.monotonic() + timeout
+def _drain_notifies(
+    conn: psycopg.Connection, timeout: float = 2.0, expected: int = 1
+) -> list[dict[str, Any]]:
+    """Collect up to `expected` NOTIFY payloads, waiting at most `timeout` seconds.
+
+    Uses psycopg 3.2's native ``notifies(timeout=, stop_after=)`` generator,
+    which drains notifications already buffered on the connection (e.g. delivered
+    during the INSERT round-trip) as well as ones that arrive while waiting.
+    Returns an empty list if no notification arrives before the timeout.
+    """
     events: list[dict[str, Any]] = []
-    while True:
-        remaining = end - time.monotonic()
-        if remaining <= 0:
-            break
-        ready, _, _ = select.select([conn], [], [], remaining)
-        if not ready:
-            break
-        for notify in conn.notifies():
-            events.append(json.loads(notify.payload))
-        if events:  # First payload(s) arrived — give a tiny extra window then return.
-            time.sleep(0.05)
-            break
+    for notify in conn.notifies(timeout=timeout, stop_after=expected):
+        events.append(json.loads(notify.payload))
     return events
 
 
