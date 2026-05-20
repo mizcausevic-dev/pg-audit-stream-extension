@@ -1,0 +1,6 @@
+# pg-audit-stream-extension v0.1.0
+comment = 'Emit audit-stream-py-compatible governance events from Postgres table changes via pg_notify'
+default_version = '0.1.0'
+relocatable = false
+schema = 'audit_stream'
+requires = ''

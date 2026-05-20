@@ -1,0 +1,61 @@
+[build-system]
+requires = ["hatchling>=1.25"]
+build-backend = "hatchling.build"
+
+[project]
+name = "audit-stream-bridge"
+version = "0.1.0"
+description = "Postgres LISTEN/NOTIFY bridge to audit-stream-py. Sidecar for the pg-audit-stream-extension."
+readme = "README.md"
+license = { text = "MIT" }
+requires-python = ">=3.11"
+authors = [{ name = "Miz Causevic", email = "miz@kineticgain.com" }]
+keywords = ["postgres", "postgresql", "audit", "audit-stream", "kinetic-gain", "governance", "pl-pgsql"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Framework :: AsyncIO",
+    "Intended Audience :: Developers",
+    "Intended Audience :: System Administrators",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Database",
+    "Typing :: Typed",
+]
+dependencies = [
+    "psycopg[binary]>=3.2",
+    "httpx>=0.27",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.2",
+    "pytest-asyncio>=0.23",
+    "ruff>=0.6",
+    "mypy>=1.11",
+]
+
+[project.scripts]
+audit-stream-bridge = "bridge.audit_stream_bridge:main"
+
+[project.urls]
+Homepage = "https://kineticgain.com/"
+Repository = "https://github.com/mizcausevic-dev/pg-audit-stream-extension"
+"Suite hub" = "https://suite.kineticgain.com/"
+
+[tool.hatch.build.targets.wheel]
+packages = ["bridge"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP", "W"]
+
+[tool.mypy]
+strict = true
+ignore_missing_imports = true
